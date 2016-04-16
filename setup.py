@@ -11,7 +11,6 @@ if not version:
 
 packages = [
     'pysimplestorageservice',
-    'pysimplestorageservice.core',
 ]
 
 
