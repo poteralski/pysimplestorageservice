@@ -11,11 +11,15 @@ class MyTestCase(unittest.TestCase):
             access_key=AWS_ACCESS_KEY_ID,
             secret_key=AWS_SECRET_ACCESS_KEY
         )
+        filename = 'f5b98175668f4547b668d8297cb2017d.jpg'
         result = amazon.get(
             bucket='teatrtotu',
             prefix='media/images/events',
-            filename='unnamed.jpg',
+            filename=filename,
         )
+        output = open(filename, "wb")
+        output.write(result)
+        output.close()
         assert isinstance(result, str)
 
     def test_files(self):

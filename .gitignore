@@ -6,3 +6,4 @@ dist
 pysimplestorageservice.egg-info
 *.pyc
 settings.py
+*.jpg
