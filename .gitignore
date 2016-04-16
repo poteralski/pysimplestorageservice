@@ -4,3 +4,4 @@
 build
 dist
 pysimplestorageservice.egg-info
+*.pyc
