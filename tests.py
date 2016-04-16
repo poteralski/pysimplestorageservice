@@ -1,7 +1,7 @@
 from pysimplestorageservice import AmazonAWSManager
 import unittest
 
-from settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, TEST_BUCKET, TEST_DIR, TEST_FILE
 
 
 class MyTestCase(unittest.TestCase):
@@ -11,13 +11,12 @@ class MyTestCase(unittest.TestCase):
             access_key=AWS_ACCESS_KEY_ID,
             secret_key=AWS_SECRET_ACCESS_KEY
         )
-        filename = 'f5b98175668f4547b668d8297cb2017d.jpg'
         result = amazon.get(
-            bucket='teatrtotu',
-            prefix='media/images/events',
-            filename=filename,
+            bucket=TEST_BUCKET,
+            prefix=TEST_DIR,
+            filename=TEST_FILE,
         )
-        output = open(filename, "wb")
+        output = open(TEST_FILE, "wb")
         output.write(result)
         output.close()
         assert isinstance(result, str)
@@ -28,8 +27,8 @@ class MyTestCase(unittest.TestCase):
             secret_key=AWS_SECRET_ACCESS_KEY
         )
         files = amazon.get_file_list(
-            bucket='teatrtotu',
-            prefix='media/images/events/',
+            bucket=TEST_BUCKET,
+            prefix=TEST_DIR+'/',
         )
         print files
         assert len(files) > 0
@@ -40,8 +39,8 @@ class MyTestCase(unittest.TestCase):
             secret_key=AWS_SECRET_ACCESS_KEY
         )
         dirs = amazon.get_dir_list(
-            bucket='teatrtotu',
-            prefix='media/images/events',
+            bucket=TEST_BUCKET,
+            prefix=TEST_DIR+'/',
         )
         print dirs
 
