@@ -27,6 +27,7 @@ class MyTestCase(unittest.TestCase):
             bucket='teatrtotu',
             prefix='media/images/events/',
         )
+        print files
         assert len(files) > 0
 
     def test_dirs(self):
