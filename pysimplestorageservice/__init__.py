@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __title__ = 'pysimplestorageservice'
-__version__ = '0.0.1'
+__version__ = '0.1'
 __build__ = 0x000001
 __author__ = 'Piotr Poteralski'
 __license__ = 'Apache 2.0'
