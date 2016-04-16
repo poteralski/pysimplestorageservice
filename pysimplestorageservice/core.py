@@ -1,5 +1,9 @@
-import datetime
 import urllib2
+import hashlib
+import hmac
+import requests
+
+from pysimplestorageservice.utilities import get_utc_now
 
 
 class AmazonAWSManager(object):
@@ -22,10 +26,7 @@ class AmazonAWSManager(object):
         return k_signing
 
     def put(self, filename, file, prefix, bucket):
-        import hashlib
-        import hmac
-        import requests
-        t = datetime.utcnow()
+        t = get_utc_now()
         method = 'PUT'
         amz_date = t.strftime('%Y%m%dT%H%M%SZ')
         date_stamp = t.strftime('%Y%m%d')
@@ -73,11 +74,7 @@ class AmazonAWSManager(object):
         return r.status_code
 
     def get(self, prefix, filename, bucket):
-        import hashlib
-        import hmac
-        import requests
-
-        t = datetime.datetime.utcnow()
+        t = get_utc_now()
         method = 'GET'
         amz_date = t.strftime('%Y%m%dT%H%M%SZ')
         date_stamp = t.strftime('%Y%m%d')
@@ -183,11 +180,7 @@ class AmazonAWSManager(object):
         return filenames
 
     def get_file_list(self, bucket=None, prefix=None, max_keys=None):
-        import hashlib
-        import hmac
-        import requests
-
-        t = datetime.datetime.utcnow()
+        t = get_utc_now()
         method = 'GET'
         amz_date = t.strftime('%Y%m%dT%H%M%SZ')
         date_stamp = t.strftime('%Y%m%d')
@@ -243,11 +236,7 @@ class AmazonAWSManager(object):
             return None
 
     def get_dir_list(self, bucket=None, prefix=None, max_keys=None):
-        import hashlib
-        import hmac
-        import requests
-
-        t = datetime.datetime.utcnow()
+        t = get_utc_now()
         method = 'GET'
         amz_date = t.strftime('%Y%m%dT%H%M%SZ')
         date_stamp = t.strftime('%Y%m%d')
