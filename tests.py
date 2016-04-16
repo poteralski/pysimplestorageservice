@@ -16,7 +16,7 @@ class MyTestCase(unittest.TestCase):
             prefix='media/images/events',
             filename='unnamed.jpg',
         )
-        print type(result)
+        assert isinstance(result, str)
 
     def test_files(self):
         amazon = AmazonAWSManager(
@@ -27,7 +27,7 @@ class MyTestCase(unittest.TestCase):
             bucket='teatrtotu',
             prefix='media/images/events/',
         )
-        print files
+        assert len(files) > 0
 
     def test_dirs(self):
         amazon = AmazonAWSManager(
@@ -36,21 +36,9 @@ class MyTestCase(unittest.TestCase):
         )
         dirs = amazon.get_dir_list(
             bucket='teatrtotu',
-            prefix='media/',
+            prefix='media/images/events',
         )
         print dirs
-
-    def test_get(self):
-        amazon = AmazonAWSManager(
-            access_key=AWS_ACCESS_KEY_ID,
-            secret_key=AWS_SECRET_ACCESS_KEY
-        )
-        result = amazon.get(
-            bucket='teatrtotu',
-            prefix='media/images/events',
-            filename='unnamed.jpg',
-        )
-        print type(result)
 
 if __name__ == '__main__':
     unittest.main()
