@@ -13,6 +13,10 @@ packages = [
     'pysimplestorageservice',
 ]
 
+requires = [
+    'urllib2',
+    'requests',
+]
 
 setup(
     name='pysimplestorageservice',
@@ -23,5 +27,6 @@ setup(
     author_email='poteralski.dev@gmail.com',
     license='Apache 2.0',
     packages=packages,
-    zip_safe=False
+    zip_safe=False,
+    install_requires=requires,
 )
