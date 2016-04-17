@@ -6,14 +6,13 @@ from pysimplestorageservice.utilities import get_utc_now
 
 
 class AuthSigV4Util:
-
     def __init__(self, access_key, secret_key, algorithm='AWS4-HMAC-SHA256', region='eu-central-1'):
         self.access_key = access_key
         self.secret_key = secret_key
         self.algorithm = algorithm
         self.region = region
         self.service = 's3'
-        self.signed_headers = ';'.join(['host','x-amz-acl','x-amz-content-sha256','x-amz-date'])
+        self.signed_headers = ';'.join(['host', 'x-amz-acl', 'x-amz-content-sha256', 'x-amz-date'])
         self.t = get_utc_now()
 
     @property
@@ -32,7 +31,7 @@ class AuthSigV4Util:
     def credential_scope(self):
         return "/".join([self.date_stamp, self.region, self.service, 'aws4_request'])
 
-    def get_headers(self, bucket, method, canonical_uri='/', payload ='', querystring={}):
+    def get_headers(self, bucket, method, canonical_uri='/', payload='', querystring={}):
         host = bucket + '.s3.amazonaws.com'
 
         payload_hash = self.__build_payload_hash(payload)
@@ -59,7 +58,7 @@ class AuthSigV4Util:
 
     def __build_cannonical_headers(self, host, payload_hash):
         return "host:{0}\nx-amz-acl:public-read\n" \
-            "x-amz-content-sha256:{1}\nx-amz-date:{2}\n".format(host, payload_hash, self.amz_date)
+               "x-amz-content-sha256:{1}\nx-amz-date:{2}\n".format(host, payload_hash, self.amz_date)
 
     def __build_authorization_headers(self, signed_headers, signature):
         headers_list = [
@@ -77,10 +76,8 @@ class AuthSigV4Util:
         return '\n'.join(args)
 
     def __build_string_to_sign(self, canonical_request):
-        return self.algorithm + '\n' + \
-               self.amz_date + '\n' + \
-               self.credential_scope + '\n' + \
-               self.__build_payload_hash(canonical_request)
+        elements = [self.algorithm, self.amz_date, self.credential_scope, self.__build_payload_hash(canonical_request)]
+        return "\n".join(elements)
 
     def __build_signature(self, signing_key, string_to_sign):
         return hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
