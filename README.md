@@ -1,7 +1,12 @@
 # pysimplestorageservice
 [![PyPI version](https://badge.fury.io/py/pysimplestorageservice.svg)](https://badge.fury.io/py/pysimplestorageservice)
 ## Instalation
+    pip install pysimplestorageservice
+
+    git clone https://github.com/poteralski/pysimplestorageservice.git
+    cd pysimplestorageservice
     python setup.py install
+    python setup.py develop
 
 ## Example Usage
     from pysimplestorageservice import AmazonAWSManager
