@@ -52,7 +52,7 @@ class AuthSigV4Util:
         string_to_sign = self.__build_string_to_sign(canonical_request)
         signing_key = self.__get_signature_key(self.secret_key)
         signature = self.__build_signature(signing_key, string_to_sign)
-        authorization_header = self.__build_authorization_headers(signed_headers, signature)
+        authorization_header = self.__build_authorization_headers(self.signed_headers, signature)
 
         return {
             'Authorization': authorization_header,
