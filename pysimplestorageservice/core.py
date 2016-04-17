@@ -78,8 +78,8 @@ class AmazonAWSManager(object):
         method = 'GET'
         amz_date = t.strftime('%Y%m%dT%H%M%SZ')
         date_stamp = t.strftime('%Y%m%d')
+        file_url = self.__build_file_url(bucket, prefix, filename)
         host = bucket + '.s3.amazonaws.com'
-        endpoint = "http://" + host + "/" + prefix + "/" + filename
         service = 's3'
         region = 'eu-central-1'
 
@@ -118,11 +118,14 @@ class AmazonAWSManager(object):
             'x-amz-content-sha256': payload_hash,
             'x-amz-date': amz_date
             }
-        r = requests.get(endpoint, headers=headers)
+        r = requests.get(file_url, headers=headers)
         if r.status_code == 200:
             return r.content
         else:
             return r.status_code
+
+    def __build_file_url(self, bucket, prefix, filename):
+        return "http://" + bucket + '.s3.amazonaws.com' + "/" + prefix + "/" + filename
 
     def parse_xml(self, xml_str):
         files = []
