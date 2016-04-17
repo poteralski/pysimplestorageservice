@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import requests
 
+from pysimplestorageservice.auth import AuthSigV4Util
 from pysimplestorageservice.utilities import get_utc_now
 
 
@@ -74,37 +75,9 @@ class AmazonAWSManager(object):
                payload_hash
 
     def get(self, prefix, filename, bucket):
-        t = get_utc_now()
-        method = 'GET'
-        amz_date = t.strftime('%Y%m%dT%H%M%SZ')
-        date_stamp = t.strftime('%Y%m%d')
+        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
+        headers = auth.get_headers(bucket, 'GET', self.build_cannonical_uri(filename, prefix))
         file_url = self.__build_file_url(bucket, prefix, filename)
-        host = bucket + '.s3.amazonaws.com'
-        service = 's3'
-        region = 'eu-central-1'
-
-        canonical_uri = self.build_cannonical_uri(filename, prefix)
-        canonical_querystring = ''
-        payload = ""
-        payload_hash = self.build_payload_hash(payload)
-        canonical_headers = self.build_cannonical_headers(amz_date, host, payload_hash)
-        signed_headers = 'host;x-amz-acl;x-amz-content-sha256;x-amz-date'
-        canonical_request = self.build_cannonical_request(canonical_headers, canonical_querystring, canonical_uri,
-                                                          method, payload_hash, signed_headers)
-        algorithm = 'AWS4-HMAC-SHA256'
-        credential_scope = self.build_credential_scope(date_stamp, region, service)
-        string_to_sign = self.build_string_to_sign(algorithm, amz_date, canonical_request, credential_scope)
-        signing_key = self.get_signature_key(self.secret_key, date_stamp,
-                                           region, service)
-        signature = self.build_signature(signing_key, string_to_sign)
-        authorization_header = self.build_authorization_header(algorithm, credential_scope, signature, signed_headers)
-        headers = {
-            'Authorization': authorization_header,
-            'Date': t.strftime("%A, %d %B %Y %H:%M:%S"),
-            'x-amz-acl': 'public-read',
-            'x-amz-content-sha256': payload_hash,
-            'x-amz-date': amz_date
-            }
         r = requests.get(file_url, headers=headers)
         if r.status_code == 200:
             return r.content
