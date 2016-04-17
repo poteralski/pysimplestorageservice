@@ -57,9 +57,9 @@ class AuthSigV4Util:
         return {
             'Authorization': authorization_header,
             'Date': self.date,
-            'x-amz-acl': 'public-read',
-            'x-amz-content-sha256': payload_hash,
-            'x-amz-date': self.amz_date
+            'X-Amz-Acl': 'public-read',
+            'X-Amz-Content-sha256': payload_hash,
+            'X-Amz-Date': self.amz_date
         }
 
     def __build_cannonical_headers(self, host, payload_hash):
