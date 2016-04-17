@@ -13,7 +13,7 @@ class AuthSigV4Util:
         self.algorithm = algorithm
         self.region = region
         self.service = 's3'
-        self.signed_headers = 'host;x-amz-acl;x-amz-content-sha256;x-amz-date'
+        self.signed_headers = ';'.join(['host','x-amz-acl','x-amz-content-sha256','x-amz-date'])
         self.t = get_utc_now()
 
     @property
