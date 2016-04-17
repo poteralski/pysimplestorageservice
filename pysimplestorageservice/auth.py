@@ -63,10 +63,8 @@ class AuthSigV4Util:
         }
 
     def __build_cannonical_headers(self, host, payload_hash):
-        return 'host:' + host + '\n' + \
-               'x-amz-acl:public-read\n' + \
-               'x-amz-content-sha256:' + payload_hash + '\n' + \
-               'x-amz-date:' + self.amz_date + '\n'
+        return"host:{0}\nx-amz-acl:public-read\n" \
+            "x-amz-content-sha256:{1}\nx-amz-date:{2}\n".format(host, payload_hash, self.amz_date)
 
     def __build_authorization_headers(self, signed_headers, signature):
         return self.algorithm + ' ' + \
