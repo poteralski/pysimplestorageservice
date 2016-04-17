@@ -1,5 +1,5 @@
 # pysimplestorageservice
-
+[![PyPI version](https://badge.fury.io/py/pysimplestorageservice.svg)](https://badge.fury.io/py/pysimplestorageservice)
 ## Instalation
     python setup.py install
 
