@@ -46,7 +46,7 @@
     respond = amazon.put(filename=filaname, file=file1, prefix='test', bucket=TEST_BUCKET)
 ### `AuthSigV4`
 You can use this class for authenticate you own requests, for example:
-
+#### `get_headers`
     from pysimplestorageservice.auth import AuthSigV4
     auth = AuthSigV4(access_key='access_key', secret_key='secret_key')
     headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
