@@ -74,3 +74,6 @@ based on [Authenticating Requests (AWS Signature Version 4)](http://docs.aws.ama
 
 ## Problem
 Problem with connect to Servers with Signature Version 4 Auth like Frankfurt
+
+### License
+This package is available under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
