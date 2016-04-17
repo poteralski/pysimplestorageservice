@@ -33,16 +33,6 @@ class MyTestCase(unittest.TestCase):
         print files
         assert len(files) > 0
 
-    def test_dirs(self):
-        amazon = AmazonAWSManager(
-            access_key=AWS_ACCESS_KEY_ID,
-            secret_key=AWS_SECRET_ACCESS_KEY
-        )
-        dirs = amazon.get_dir_list(
-            bucket=TEST_BUCKET,
-            prefix='test/',
-        )
-        print dirs
 
 if __name__ == '__main__':
     unittest.main()

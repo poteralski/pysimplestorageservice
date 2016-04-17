@@ -121,9 +121,9 @@ class AmazonAWSManager(object):
     def __build_endpoint(self, bucket, prefix=None, filename=None):
         endpoint = "http://" + bucket + '.s3.amazonaws.com'
         if prefix and filename:
-            return endpoint + "/" + prefix + "/" + filename
+            return "/".join([endpoint, prefix, filename])
         elif prefix:
-            return endpoint + "/" + prefix + "/"
+            return "/".join([endpoint, prefix])
         else:
             return endpoint
 
