@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import requests
 
-from pysimplestorageservice.auth import AuthSigV4Util
+from pysimplestorageservice.auth import AuthSigV4
 from pysimplestorageservice.utilities import get_utc_now
 
 
@@ -18,7 +18,7 @@ class AmazonAWSManager(object):
         """
         GET
         """
-        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
+        auth = AuthSigV4(access_key=self.access_key, secret_key=self.secret_key)
         headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
         file_url = self.__build_endpoint(bucket, prefix, filename)
         r = requests.get(file_url, headers=headers)
@@ -36,7 +36,7 @@ class AmazonAWSManager(object):
             params["max-keys"] = str(max_keys)
         if prefix:
             params["prefix"] = prefix
-        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
+        auth = AuthSigV4(access_key=self.access_key, secret_key=self.secret_key)
         headers = auth.get_headers(bucket, 'GET', querystring=params)
         endpoint = self.__build_endpoint(bucket)
         r = requests.get(endpoint, headers=headers, params=params)

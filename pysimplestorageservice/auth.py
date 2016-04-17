@@ -5,7 +5,7 @@ import urllib
 from pysimplestorageservice.utilities import get_utc_now
 
 
-class AuthSigV4Util:
+class AuthSigV4(object):
     def __init__(self, access_key, secret_key, algorithm='AWS4-HMAC-SHA256', region='eu-central-1'):
         self.access_key = access_key
         self.secret_key = secret_key
