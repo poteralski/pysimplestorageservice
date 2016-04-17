@@ -20,7 +20,7 @@ requires = [
 
 setup(
     name='pysimplestorageservice',
-    version='0.1',
+    version=version,
     description='Python S3 access for humans',
     url='https://github.com/poteralski/pysimplestorageservice',
     author='Piotr Poteralski',
