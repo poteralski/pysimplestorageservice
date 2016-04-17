@@ -1,9 +1,12 @@
 # pysimplestorageservice
 [![PyPI version](https://badge.fury.io/py/pysimplestorageservice.svg)](https://badge.fury.io/py/pysimplestorageservice)
 ## Instalation
+#### automatic
 ```bash
     pip install pysimplestorageservice
-
+```
+#### manual
+```bash
     git clone https://github.com/poteralski/pysimplestorageservice.git
     cd pysimplestorageservice
     python setup.py install
