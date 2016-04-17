@@ -35,34 +35,19 @@ class AmazonAWSManager(object):
         service = 's3'
         region = 'eu-central-1'
 
-        canonical_uri = '/' + prefix + '/' + filename
+        canonical_uri = self.build_cannonical_uri(filename, prefix)
         canonical_querystring = ''
-        payload_hash = hashlib.sha256(file).hexdigest()
-        canonical_headers = 'host:' + host + '\n' + \
-                            'x-amz-acl:public-read\n' + \
-                            'x-amz-content-sha256:' + payload_hash + '\n' + \
-                            'x-amz-date:' + amz_date + '\n'
+        payload_hash = self.build_payload_hash(file)
+        canonical_headers = self.build_cannonical_headers(amz_date, host, payload_hash)
         signed_headers = 'host;x-amz-acl;x-amz-content-sha256;x-amz-date'
-        canonical_request = method + '\n' + \
-                            canonical_uri + '\n' + \
-                            canonical_querystring + '\n' +  \
-                            canonical_headers + '\n' + \
-                            signed_headers + '\n' + \
-                            payload_hash
+        canonical_request = self.build_cannonical_request(canonical_headers, canonical_querystring, canonical_uri,
+                                                          method, payload_hash, signed_headers)
         algorithm = 'AWS4-HMAC-SHA256'
-        credential_scope = date_stamp + '/' + \
-                           region + '/' + \
-                           service + '/' + \
-                           'aws4_request'
-        string_to_sign = algorithm + '\n' + \
-                         amz_date + '\n' + \
-                         credential_scope + '\n' + \
-                         hashlib.sha256(canonical_request).hexdigest()
-        signing_key = self.get_signature_key(self.secret_key, date_stamp,
-                                           region, service)
-        signature = hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
-        authorization_header = algorithm + ' ' + 'Credential=' + self.access_key + '/' + credential_scope + ', ' + \
-                               'SignedHeaders=' + signed_headers + ', ' + 'Signature=' + signature
+        credential_scope = self.build_credential_scope(date_stamp, region, service)
+        string_to_sign = self.build_string_to_sign(algorithm, amz_date, canonical_request, credential_scope)
+        signing_key = self.get_signature_key(self.secret_key, date_stamp, region, service)
+        signature = self.build_signature(signing_key, string_to_sign)
+        authorization_header = self.build_authorization_header(algorithm, credential_scope, signature, signed_headers)
         headers = {
             'Authorization': authorization_header,
             'Date': t.strftime("%A, %d %B %Y %H:%M:%S"),
@@ -72,6 +57,21 @@ class AmazonAWSManager(object):
             }
         r = requests.put(endpoint, data=file, headers=headers)
         return r.status_code
+
+    def build_cannonical_uri(self, filename, prefix):
+        return '/' + prefix + '/' + filename
+
+    def build_signature(self, signing_key, string_to_sign):
+        return hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
+
+    def build_cannonical_request(self, canonical_headers, canonical_querystring, canonical_uri, method, payload_hash,
+                                 signed_headers):
+        return method + '\n' + \
+               canonical_uri + '\n' + \
+               canonical_querystring + '\n' + \
+               canonical_headers + '\n' + \
+               signed_headers + '\n' + \
+               payload_hash
 
     def get(self, prefix, filename, bucket):
         t = get_utc_now()
@@ -83,34 +83,21 @@ class AmazonAWSManager(object):
         service = 's3'
         region = 'eu-central-1'
 
-        canonical_uri = '/' + prefix + '/' + filename
+        canonical_uri = self.build_cannonical_uri(filename, prefix)
         canonical_querystring = ''
-        payload_hash = hashlib.sha256("").hexdigest()
-        canonical_headers = 'host:' + host + '\n' + \
-                            'x-amz-acl:public-read\n' + \
-                            'x-amz-content-sha256:' + payload_hash + '\n' + \
-                            'x-amz-date:' + amz_date + '\n'
+        payload = ""
+        payload_hash = self.build_payload_hash(payload)
+        canonical_headers = self.build_cannonical_headers(amz_date, host, payload_hash)
         signed_headers = 'host;x-amz-acl;x-amz-content-sha256;x-amz-date'
-        canonical_request = method + '\n' + \
-                            canonical_uri + '\n' + \
-                            canonical_querystring + '\n' +  \
-                            canonical_headers + '\n' + \
-                            signed_headers + '\n' + \
-                            payload_hash
+        canonical_request = self.build_cannonical_request(canonical_headers, canonical_querystring, canonical_uri,
+                                                          method, payload_hash, signed_headers)
         algorithm = 'AWS4-HMAC-SHA256'
-        credential_scope = date_stamp + '/' + \
-                           region + '/' + \
-                           service + '/' + \
-                           'aws4_request'
-        string_to_sign = algorithm + '\n' + \
-                         amz_date + '\n' + \
-                         credential_scope + '\n' + \
-                         hashlib.sha256(canonical_request).hexdigest()
+        credential_scope = self.build_credential_scope(date_stamp, region, service)
+        string_to_sign = self.build_string_to_sign(algorithm, amz_date, canonical_request, credential_scope)
         signing_key = self.get_signature_key(self.secret_key, date_stamp,
                                            region, service)
-        signature = hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
-        authorization_header = algorithm + ' ' + 'Credential=' + self.access_key + '/' + credential_scope + ', ' + \
-                               'SignedHeaders=' + signed_headers + ', ' + 'Signature=' + signature
+        signature = self.build_signature(signing_key, string_to_sign)
+        authorization_header = self.build_authorization_header(algorithm, credential_scope, signature, signed_headers)
         headers = {
             'Authorization': authorization_header,
             'Date': t.strftime("%A, %d %B %Y %H:%M:%S"),
@@ -123,6 +110,19 @@ class AmazonAWSManager(object):
             return r.content
         else:
             return r.status_code
+
+    def build_payload_hash(self, payload):
+        return hashlib.sha256(payload).hexdigest()
+
+    def build_cannonical_headers(self, amz_date, host, payload_hash):
+        return 'host:' + host + '\n' + \
+               'x-amz-acl:public-read\n' + \
+               'x-amz-content-sha256:' + payload_hash + '\n' + \
+               'x-amz-date:' + amz_date + '\n'
+
+    def build_authorization_header(self, algorithm, credential_scope, signature, signed_headers):
+        return algorithm + ' ' + 'Credential=' + self.access_key + '/' + credential_scope + ', ' + \
+               'SignedHeaders=' + signed_headers + ', ' + 'Signature=' + signature
 
     def __build_file_url(self, bucket, prefix, filename):
         return "http://" + bucket + '.s3.amazonaws.com' + "/" + prefix + "/" + filename
@@ -198,30 +198,20 @@ class AmazonAWSManager(object):
             canonical_querystring = canonical_querystring + '&max-keys=' + urllib2.quote(str(max_keys),safe='')
         if prefix is not None:
             canonical_querystring = canonical_querystring + '&prefix=' + urllib2.quote(prefix,safe='')
-        payload_hash = hashlib.sha256("").hexdigest()
+        payload_hash = self.build_payload_hash("")
         canonical_headers = 'host:' + host + '\n' + \
                             'x-amz-content-sha256:' + payload_hash + '\n' + \
                             'x-amz-date:' + amz_date + '\n'
         signed_headers = 'host;x-amz-content-sha256;x-amz-date'
-        canonical_request = method + '\n' + \
-                            canonical_uri + '\n' + \
-                            canonical_querystring + '\n' +  \
-                            canonical_headers + '\n' + \
-                            signed_headers + '\n' + \
-                            payload_hash
+        canonical_request = self.build_cannonical_request(canonical_headers, canonical_querystring, canonical_uri,
+                                                          method, payload_hash, signed_headers)
         #print canonical_request
         algorithm = 'AWS4-HMAC-SHA256'
-        credential_scope = date_stamp + '/' + \
-                           region + '/' + \
-                           service + '/' + \
-                           'aws4_request'
-        string_to_sign = algorithm + '\n' + \
-                         amz_date + '\n' + \
-                         credential_scope + '\n' + \
-                         hashlib.sha256(canonical_request).hexdigest()
+        credential_scope = self.build_credential_scope(date_stamp, region, service)
+        string_to_sign = self.build_string_to_sign(algorithm, amz_date, canonical_request, credential_scope)
         signing_key = self.get_signature_key(self.secret_key, date_stamp,
                                            region, service)
-        signature = hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
+        signature = self.build_signature(signing_key, string_to_sign)
         authorization_header = algorithm + ' ' + 'Credential=' + self.access_key + '/' + credential_scope + ',' + \
                                'SignedHeaders=' + signed_headers + ',' + 'Signature=' + signature
         #print authorization_header
@@ -237,6 +227,12 @@ class AmazonAWSManager(object):
             return self.parse_xml(r.content)
         else:
             return None
+
+    def build_string_to_sign(self, algorithm, amz_date, canonical_request, credential_scope):
+        return algorithm + '\n' + \
+               amz_date + '\n' + \
+               credential_scope + '\n' + \
+               self.build_payload_hash(canonical_request)
 
     def get_dir_list(self, bucket=None, prefix=None, max_keys=None):
         t = get_utc_now()
@@ -254,30 +250,20 @@ class AmazonAWSManager(object):
             canonical_querystring = canonical_querystring + '&max-keys=' + urllib2.quote(str(max_keys),safe='')
         if prefix is not None:
             canonical_querystring = canonical_querystring + '&prefix=' + urllib2.quote(prefix,safe='')
-        payload_hash = hashlib.sha256("").hexdigest()
+        payload_hash = self.build_payload_hash("")
         canonical_headers = 'host:' + host + '\n' + \
                             'x-amz-content-sha256:' + payload_hash + '\n' + \
                             'x-amz-date:' + amz_date + '\n'
         signed_headers = 'host;x-amz-content-sha256;x-amz-date'
-        canonical_request = method + '\n' + \
-                            canonical_uri + '\n' + \
-                            canonical_querystring + '\n' +  \
-                            canonical_headers + '\n' + \
-                            signed_headers + '\n' + \
-                            payload_hash
+        canonical_request = self.build_cannonical_request(canonical_headers, canonical_querystring, canonical_uri,
+                                                          method, payload_hash, signed_headers)
         #print canonical_request
         algorithm = 'AWS4-HMAC-SHA256'
-        credential_scope = date_stamp + '/' + \
-                           region + '/' + \
-                           service + '/' + \
-                           'aws4_request'
-        string_to_sign = algorithm + '\n' + \
-                         amz_date + '\n' + \
-                         credential_scope + '\n' + \
-                         hashlib.sha256(canonical_request).hexdigest()
+        credential_scope = self.build_credential_scope(date_stamp, region, service)
+        string_to_sign = self.build_string_to_sign(algorithm, amz_date, canonical_request, credential_scope)
         signing_key = self.get_signature_key(self.secret_key, date_stamp,
                                            region, service)
-        signature = hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
+        signature = self.build_signature(signing_key, string_to_sign)
         authorization_header = algorithm + ' ' + 'Credential=' + self.access_key + '/' + credential_scope + ',' + \
                                'SignedHeaders=' + signed_headers + ',' + 'Signature=' + signature
         #print authorization_header
@@ -293,3 +279,9 @@ class AmazonAWSManager(object):
             return self.parse_xml_for_dirs(r.content)
         else:
             return None
+
+    def build_credential_scope(self, date_stamp, region, service):
+        return date_stamp + '/' + \
+               region + '/' + \
+               service + '/' + \
+               'aws4_request'
