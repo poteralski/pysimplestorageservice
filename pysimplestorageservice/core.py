@@ -1,4 +1,3 @@
-import urllib2
 import hashlib
 import hmac
 import requests

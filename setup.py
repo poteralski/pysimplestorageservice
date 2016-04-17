@@ -15,7 +15,6 @@ packages = [
 
 requires = [
     'urllib',
-    'urllib2',
     'requests',
 ]
 

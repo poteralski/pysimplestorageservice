@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import urllib
 
-from pysimplestorageservice.utilities import get_utc_now
+from .utilities import get_utc_now
 
 
 class AuthSigV4(object):
