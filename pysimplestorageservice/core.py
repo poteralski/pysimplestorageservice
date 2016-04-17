@@ -14,6 +14,40 @@ class AmazonAWSManager(object):
         self.access_key = access_key
         self.secret_key = secret_key
 
+    def get(self, prefix, filename, bucket):
+        """
+        GET
+        """
+        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
+        headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
+        file_url = self.__build_endpoint(bucket, prefix, filename)
+        r = requests.get(file_url, headers=headers)
+        if r.status_code == 200:
+            return r.content
+        else:
+            return r.status_code
+
+    def get_file_list(self, bucket=None, prefix=None, max_keys=None):
+        """
+        FILE LIST
+        """
+        canonical_querystring = 'delimiter=' + urllib2.quote('/', safe='')
+        if max_keys is not None:
+            canonical_querystring = canonical_querystring + '&max-keys=' + urllib2.quote(str(max_keys), safe='')
+        if prefix is not None:
+            canonical_querystring = canonical_querystring + '&prefix=' + urllib2.quote(prefix, safe='')
+
+        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
+        headers = auth.get_headers(bucket, 'GET', canonical_querystring=canonical_querystring)
+        endopoint = self.__build_endpoint(bucket)
+        r = requests.get(endopoint, headers=headers)
+
+        r = requests.get(endopoint + "/?" + canonical_querystring, headers=headers)
+        if r.status_code == 200:
+            return self.parse_xml(r.content)
+        else:
+            return None
+
     def sign(self, key, msg):
         import hmac
         import hashlib
@@ -73,19 +107,6 @@ class AmazonAWSManager(object):
                canonical_headers + '\n' + \
                signed_headers + '\n' + \
                payload_hash
-
-    def get(self, prefix, filename, bucket):
-        """
-        GET
-        """
-        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
-        headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
-        file_url = self.__build_endpoint(bucket, prefix, filename)
-        r = requests.get(file_url, headers=headers)
-        if r.status_code == 200:
-            return r.content
-        else:
-            return r.status_code
 
     def build_payload_hash(self, payload):
         return hashlib.sha256(payload).hexdigest()
@@ -163,25 +184,6 @@ class AmazonAWSManager(object):
             if dir_name in l:
                 filenames.append(l.split("/")[-2]+"/"+l.split("/")[-1])
         return filenames
-
-    def get_file_list(self, bucket=None, prefix=None, max_keys=None):
-
-        canonical_querystring = 'delimiter='+urllib2.quote('/',safe='')
-        if max_keys is not None:
-            canonical_querystring = canonical_querystring + '&max-keys=' + urllib2.quote(str(max_keys),safe='')
-        if prefix is not None:
-            canonical_querystring = canonical_querystring + '&prefix=' + urllib2.quote(prefix,safe='')
-
-        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
-        headers = auth.get_headers(bucket, 'GET', canonical_querystring=canonical_querystring)
-        endopoint = self.__build_endpoint(bucket)
-        r = requests.get(endopoint, headers=headers)
-
-        r = requests.get(endopoint+"/?"+canonical_querystring, headers=headers)
-        if r.status_code == 200:
-            return self.parse_xml(r.content)
-        else:
-            return None
 
     def build_string_to_sign(self, algorithm, amz_date, canonical_request, credential_scope):
         return algorithm + '\n' + \
