@@ -6,6 +6,14 @@ from settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, TEST_BUCKET, TEST
 
 class MyTestCase(unittest.TestCase):
 
+    def test_put(self):
+        file = open('test.jpg', 'r').read()
+        amazon = AmazonAWSManager(
+            access_key=AWS_ACCESS_KEY_ID,
+            secret_key=AWS_SECRET_ACCESS_KEY
+        )
+        amazon.put(filename='test.jpg', file=file, prefix='test', bucket=TEST_BUCKET)
+
     def test_get(self):
         amazon = AmazonAWSManager(
             access_key=AWS_ACCESS_KEY_ID,
