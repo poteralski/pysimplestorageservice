@@ -56,6 +56,14 @@ class AmazonAWSManager(object):
         k_signing = self.sign(k_service, 'aws4_request')
         return k_signing
 
+    def put_v2(self, filename, file, prefix, bucket):
+        auth = AuthSigV4(access_key=self.access_key, secret_key=self.secret_key)
+        headers = auth.get_headers(bucket, 'PUT', payload=file)
+        endpoint = self.__build_endpoint(bucket, prefix, filename)
+        r = requests.put(endpoint, data=file, headers=headers)
+        print r.content
+        return r
+
     def put(self, filename, file, prefix, bucket):
         t = get_utc_now()
         method = 'PUT'
@@ -87,7 +95,7 @@ class AmazonAWSManager(object):
             'x-amz-date': amz_date
             }
         r = requests.put(endpoint, data=file, headers=headers)
-        return r.status_code
+        return r
 
     def build_cannonical_uri(self, filename, prefix):
         return '/' + prefix + '/' + filename

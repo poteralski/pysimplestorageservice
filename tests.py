@@ -7,12 +7,17 @@ from settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, TEST_BUCKET, TEST
 class MyTestCase(unittest.TestCase):
 
     def test_put(self):
-        file = open('test.jpg', 'r').read()
         amazon = AmazonAWSManager(
             access_key=AWS_ACCESS_KEY_ID,
             secret_key=AWS_SECRET_ACCESS_KEY
         )
-        amazon.put(filename='test.jpg', file=file, prefix='test', bucket=TEST_BUCKET)
+        file1 = open('test1.jpg', 'r').read()
+        file2 = open('test2.jpg', 'r').read()
+        respond = amazon.put(filename='test1.jpg', file=file1, prefix='test', bucket=TEST_BUCKET)
+        assert respond.status_code == 200
+        respond = amazon.put_v2(filename='test2.jpg', file=file2, prefix='test', bucket=TEST_BUCKET)
+        assert respond.status_code == 200
+
 
     def test_get(self):
         amazon = AmazonAWSManager(
