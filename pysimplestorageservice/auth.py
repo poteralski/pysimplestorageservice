@@ -66,14 +66,15 @@ class AuthSigV4(object):
             ("SignedHeaders", signed_headers),
             ("Signature", signature),
         ]
-        headers_str = ",".join(["=".join([header[0], header[1]]) for header in headers_list])
+        headers_str = ", ".join(["=".join([header[0], header[1]]) for header in headers_list])
         return " ".join([self.algorithm, headers_str])
 
     def __build_payload_hash(self, payload):
         return hashlib.sha256(payload).hexdigest()
 
     def __build_cannonical_request(self, *args):
-        return '\n'.join(args)
+        join = '\n'.join(args)
+        return join
 
     def __build_string_to_sign(self, canonical_request):
         elements = [self.algorithm, self.amz_date, self.credential_scope, self.__build_payload_hash(canonical_request)]
