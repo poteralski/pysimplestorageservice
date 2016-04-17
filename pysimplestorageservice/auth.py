@@ -29,11 +29,7 @@ class AuthSigV4Util:
 
     @property
     def credential_scope(self):
-        return self.date_stamp + '/' + \
-               self.region + '/' + \
-               self.service + '/' + \
-               'aws4_request'
-
+        return "/".join([self.date_stamp, self.region, self.service, 'aws4_request'])
 
     def get_headers(self, bucket, method, canonical_uri='/', payload ='', querystring={}):
         host = bucket + '.s3.amazonaws.com'
