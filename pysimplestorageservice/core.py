@@ -75,9 +75,12 @@ class AmazonAWSManager(object):
                payload_hash
 
     def get(self, prefix, filename, bucket):
+        """
+        GET
+        """
         auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
-        headers = auth.get_headers(bucket, 'GET', self.build_cannonical_uri(filename, prefix))
-        file_url = self.__build_file_url(bucket, prefix, filename)
+        headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
+        file_url = self.__build_endpoint(bucket, prefix, filename)
         r = requests.get(file_url, headers=headers)
         if r.status_code == 200:
             return r.content
@@ -97,8 +100,14 @@ class AmazonAWSManager(object):
         return algorithm + ' ' + 'Credential=' + self.access_key + '/' + credential_scope + ', ' + \
                'SignedHeaders=' + signed_headers + ', ' + 'Signature=' + signature
 
-    def __build_file_url(self, bucket, prefix, filename):
-        return "http://" + bucket + '.s3.amazonaws.com' + "/" + prefix + "/" + filename
+    def __build_endpoint(self, bucket, prefix=None, filename=None):
+        endpoint = "http://" + bucket + '.s3.amazonaws.com'
+        if prefix and filename:
+            return endpoint + "/" + prefix + "/" + filename
+        elif prefix:
+            return endpoint + "/" + prefix + "/"
+        else:
+            return endpoint
 
     def parse_xml(self, xml_str):
         files = []
@@ -156,46 +165,19 @@ class AmazonAWSManager(object):
         return filenames
 
     def get_file_list(self, bucket=None, prefix=None, max_keys=None):
-        t = get_utc_now()
-        method = 'GET'
-        amz_date = t.strftime('%Y%m%dT%H%M%SZ')
-        date_stamp = t.strftime('%Y%m%d')
-        host = bucket + '.s3.amazonaws.com'
-        endpoint = "http://" + host
-        service = 's3'
-        region = 'eu-central-1'
 
-        canonical_uri = '/'
         canonical_querystring = 'delimiter='+urllib2.quote('/',safe='')
         if max_keys is not None:
             canonical_querystring = canonical_querystring + '&max-keys=' + urllib2.quote(str(max_keys),safe='')
         if prefix is not None:
             canonical_querystring = canonical_querystring + '&prefix=' + urllib2.quote(prefix,safe='')
-        payload_hash = self.build_payload_hash("")
-        canonical_headers = 'host:' + host + '\n' + \
-                            'x-amz-content-sha256:' + payload_hash + '\n' + \
-                            'x-amz-date:' + amz_date + '\n'
-        signed_headers = 'host;x-amz-content-sha256;x-amz-date'
-        canonical_request = self.build_cannonical_request(canonical_headers, canonical_querystring, canonical_uri,
-                                                          method, payload_hash, signed_headers)
-        #print canonical_request
-        algorithm = 'AWS4-HMAC-SHA256'
-        credential_scope = self.build_credential_scope(date_stamp, region, service)
-        string_to_sign = self.build_string_to_sign(algorithm, amz_date, canonical_request, credential_scope)
-        signing_key = self.get_signature_key(self.secret_key, date_stamp,
-                                           region, service)
-        signature = self.build_signature(signing_key, string_to_sign)
-        authorization_header = algorithm + ' ' + 'Credential=' + self.access_key + '/' + credential_scope + ',' + \
-                               'SignedHeaders=' + signed_headers + ',' + 'Signature=' + signature
-        #print authorization_header
 
-        headers = {
-            'Authorization': authorization_header,
-            'Date': t.strftime("%A, %d %B %Y %H:%M:%S"),
-            'x-amz-content-sha256': payload_hash,
-            'x-amz-date': amz_date
-            }
-        r = requests.get(endpoint+"/?"+canonical_querystring, headers=headers)
+        auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
+        headers = auth.get_headers(bucket, 'GET', canonical_querystring=canonical_querystring)
+        endopoint = self.__build_endpoint(bucket)
+        r = requests.get(endopoint, headers=headers)
+
+        r = requests.get(endopoint+"/?"+canonical_querystring, headers=headers)
         if r.status_code == 200:
             return self.parse_xml(r.content)
         else:

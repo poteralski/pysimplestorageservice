@@ -34,7 +34,7 @@ class AuthSigV4Util:
                'aws4_request'
 
 
-    def get_headers(self, bucket, method, canonical_uri, payload ='', canonical_querystring=''):
+    def get_headers(self, bucket, method, canonical_uri='/', payload ='', canonical_querystring=''):
         host = bucket + '.s3.amazonaws.com'
 
         payload_hash = self.__build_payload_hash(payload)
