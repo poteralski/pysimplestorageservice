@@ -54,13 +54,13 @@ Argument | Type | Description
 `canonical_uri='/'` | `str` | Path to file/files
 `payload=''` | `str` | Payloads to sign
 `querystring={}` | `Dict` | HTTP QueryString to sign
-
-    from pysimplestorageservice.auth import AuthSigV4
-    auth = AuthSigV4(access_key='access_key', secret_key='secret_key')
-    headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
-    file_url = self.__build_endpoint(bucket, prefix, filename)
-    r = requests.get(file_url, headers=headers)
-
+```python
+from pysimplestorageservice.auth import AuthSigV4
+auth = AuthSigV4(access_key='access_key', secret_key='secret_key')
+headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
+file_url = self.__build_endpoint(bucket, prefix, filename)
+r = requests.get(file_url, headers=headers)
+```
 ## References
 based on [Authenticating Requests (AWS Signature Version 4)](http://docs.aws.amazon.com/AmazonS3/latest/API/bucket-policy-s3-sigv4-conditions.html)
 
