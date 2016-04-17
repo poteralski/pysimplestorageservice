@@ -41,12 +41,7 @@ class AuthSigV4Util:
         canonical_headers = self.__build_cannonical_headers(host, payload_hash)
 
         canonical_request = self.__build_cannonical_request(
-            canonical_headers,
-            canonical_querystring,
-            canonical_uri,
-            method,
-            payload_hash,
-            self.signed_headers
+            method, canonical_uri, canonical_querystring, canonical_headers, self.signed_headers, payload_hash
         )
 
         string_to_sign = self.__build_string_to_sign(canonical_request)
@@ -78,14 +73,8 @@ class AuthSigV4Util:
     def __build_payload_hash(self, payload):
         return hashlib.sha256(payload).hexdigest()
 
-    def __build_cannonical_request(self, canonical_headers, canonical_querystring, canonical_uri,
-                                   method, payload_hash, signed_headers):
-        return method + '\n' + \
-               canonical_uri + '\n' + \
-               canonical_querystring + '\n' + \
-               canonical_headers + '\n' + \
-               signed_headers + '\n' + \
-               payload_hash
+    def __build_cannonical_request(self, *args):
+        return '\n'.join(args)
 
     def __build_string_to_sign(self, canonical_request):
         return self.algorithm + '\n' + \
