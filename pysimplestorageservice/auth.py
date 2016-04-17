@@ -13,6 +13,7 @@ class AuthSigV4Util:
         self.algorithm = algorithm
         self.region = region
         self.service = 's3'
+        self.signed_headers = 'host;x-amz-acl;x-amz-content-sha256;x-amz-date'
         self.t = get_utc_now()
 
     @property
@@ -39,15 +40,13 @@ class AuthSigV4Util:
         canonical_querystring = urllib.urlencode(querystring)
         canonical_headers = self.__build_cannonical_headers(host, payload_hash)
 
-        signed_headers = 'host;x-amz-acl;x-amz-content-sha256;x-amz-date'
-
         canonical_request = self.__build_cannonical_request(
             canonical_headers,
             canonical_querystring,
             canonical_uri,
             method,
             payload_hash,
-            signed_headers
+            self.signed_headers
         )
 
         string_to_sign = self.__build_string_to_sign(canonical_request)
