@@ -38,9 +38,8 @@ class AmazonAWSManager(object):
             params["prefix"] = prefix
         auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
         headers = auth.get_headers(bucket, 'GET', querystring=params)
-        endopoint = self.__build_endpoint(bucket)
-        r = requests.get(endopoint, headers=headers)
-        r = requests.get(endopoint, headers=headers, params=params)
+        endpoint = self.__build_endpoint(bucket)
+        r = requests.get(endpoint, headers=headers, params=params)
         if r.status_code == 200:
             return self.parse_xml(r.content)
         else:
