@@ -47,6 +47,14 @@
 ### `AuthSigV4`
 You can use this class for authenticate you own requests, for example:
 #### `get_headers`
+Argument | Type | Description
+-------- | ---- | -----------
+`bucket` | `str` | Amazon S3 Bucket Name
+`method` | `str` | Amazon S3 Method
+`canonical_uri='/'` | `str` | Path to file/files
+`payload=''` | `str` | Payloads to sign
+`querystring={}` | `Dict` | HTTP QueryString to sign
+
     from pysimplestorageservice.auth import AuthSigV4
     auth = AuthSigV4(access_key='access_key', secret_key='secret_key')
     headers = auth.get_headers(bucket, 'GET', canonical_uri=self.build_cannonical_uri(filename, prefix))
