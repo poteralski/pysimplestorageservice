@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import urllib
 
 from pysimplestorageservice.utilities import get_utc_now
 
@@ -34,11 +35,12 @@ class AuthSigV4Util:
                'aws4_request'
 
 
-    def get_headers(self, bucket, method, canonical_uri='/', payload ='', canonical_querystring=''):
+    def get_headers(self, bucket, method, canonical_uri='/', payload ='', querystring={}):
         host = bucket + '.s3.amazonaws.com'
 
         payload_hash = self.__build_payload_hash(payload)
 
+        canonical_querystring = urllib.urlencode(querystring)
         canonical_headers = self.__build_cannonical_headers(host, payload_hash)
 
         signed_headers = 'host;x-amz-acl;x-amz-content-sha256;x-amz-date'

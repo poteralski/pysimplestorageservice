@@ -40,7 +40,7 @@ class MyTestCase(unittest.TestCase):
         )
         dirs = amazon.get_dir_list(
             bucket=TEST_BUCKET,
-            prefix=TEST_DIR+'/',
+            prefix='test/',
         )
         print dirs
 

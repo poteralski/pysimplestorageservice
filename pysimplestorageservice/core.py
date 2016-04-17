@@ -31,18 +31,16 @@ class AmazonAWSManager(object):
         """
         FILE LIST
         """
-        canonical_querystring = 'delimiter=' + urllib2.quote('/', safe='')
-        if max_keys is not None:
-            canonical_querystring = canonical_querystring + '&max-keys=' + urllib2.quote(str(max_keys), safe='')
-        if prefix is not None:
-            canonical_querystring = canonical_querystring + '&prefix=' + urllib2.quote(prefix, safe='')
-
+        params = {"delimiter": "/"}
+        if max_keys:
+            params["max-keys"] = str(max_keys)
+        if prefix:
+            params["prefix"] = prefix
         auth = AuthSigV4Util(access_key=self.access_key, secret_key=self.secret_key)
-        headers = auth.get_headers(bucket, 'GET', canonical_querystring=canonical_querystring)
+        headers = auth.get_headers(bucket, 'GET', querystring=params)
         endopoint = self.__build_endpoint(bucket)
         r = requests.get(endopoint, headers=headers)
-
-        r = requests.get(endopoint + "/?" + canonical_querystring, headers=headers)
+        r = requests.get(endopoint, headers=headers, params=params)
         if r.status_code == 200:
             return self.parse_xml(r.content)
         else:
