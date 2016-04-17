@@ -9,16 +9,42 @@
     python setup.py develop
 
 ## Example Usage
+### AmazonAWSManager
+#### get method
     from pysimplestorageservice import AmazonAWSManager
-    s3 = AmazonAWSManager(access_key='', secret_key='')
-    files = s3.get_file_list(
-        bucket='my-bucket',
-        prefix='media/images/events/',
+    amazon = AmazonAWSManager(
+        access_key=AWS_ACCESS_KEY_ID,
+        secret_key=AWS_SECRET_ACCESS_KEY
     )
-    dirs = s3.get_dir_list(
-        bucket='my-bucket',
-        prefix='media/images/',
+    result = amazon.get(
+        bucket=TEST_BUCKET,
+        prefix=TEST_DIR,
+        filename=TEST_FILE,
     )
+    output = open(TEST_FILE, "wb")
+    output.write(result)
+    output.close()
+#### `get_file_list` method
+    from pysimplestorageservice import AmazonAWSManager
+    amazon = AmazonAWSManager(
+        access_key=AWS_ACCESS_KEY_ID,
+        secret_key=AWS_SECRET_ACCESS_KEY
+    )
+    files = amazon.get_file_list(
+        bucket=TEST_BUCKET,
+        prefix=TEST_DIR+'/',
+    )
+    print files
+#### `put` method
+    from pysimplestorageservice import AmazonAWSManager
+    amazon = AmazonAWSManager(
+        access_key=AWS_ACCESS_KEY_ID,
+        secret_key=AWS_SECRET_ACCESS_KEY
+    )
+    filaname = 'test2.jpg'
+    file1 = open(filaname, 'r').read()
+    respond = amazon.put(filename=filaname, file=file1, prefix='test', bucket=TEST_BUCKET)
+### AmazonAWSManager
 
 ## References
 based on [Authenticating Requests (AWS Signature Version 4)](http://docs.aws.amazon.com/AmazonS3/latest/API/bucket-policy-s3-sigv4-conditions.html)
